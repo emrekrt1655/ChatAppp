@@ -46,6 +46,7 @@ const Login = (props) => {
              <Button
               title='Sign Up'
               noBorder
+              onPress={()=> props.navigation.navigate('Sign')}
              />
            </View>
           
