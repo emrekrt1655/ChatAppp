@@ -7,7 +7,7 @@ import auth from '@react-native-firebase/auth'
 
 const Timeline = () => {
 
-  const [topicModalFlag, setTopicModalFlag] = useState(false);
+  const [topicModalFlag, setTopicModalFlag] = useState(true);
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   return (
@@ -29,7 +29,7 @@ const Timeline = () => {
 
        <TopicSelectModal
         visibility={topicModalFlag}
-        onClose= {()=>setTopicModalFlag(false)}
+        onClose= {()=> selectedTopic ? setTopicModalFlag(false): null}
         onTopicSelect= {(value)=>{
           setSelectedTopic(value);
           setTopicModalFlag(false)
