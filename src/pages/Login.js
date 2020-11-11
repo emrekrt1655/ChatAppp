@@ -28,7 +28,12 @@ const Login = (props) => {
   // } 
   const login =  async () =>{
     try {
-      await auth().signInWithEmailAndPassword(email,password)
+      if(email === '' || password === ''){
+        Alert.alert('ClarusChat', resolveAuthError('auth/null-value'))
+      }
+      else{
+        await auth().signInWithEmailAndPassword(email,password)
+      }
     }
     catch(err){
       Alert.alert('ClarusChat', resolveAuthError(err.code))
