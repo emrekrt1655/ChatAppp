@@ -12,7 +12,10 @@ function Router() {
   return (
   
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator 
+        initialRouteName='Timeline'
+        screenOptions={{headerShown: false}}
+      >
         <Stack.Screen name = 'Login' component = {Login} />
         <Stack.Screen name = 'Sign' component = {Sign} />
         <Stack.Screen name = 'Timeline' component = {Timeline} />
