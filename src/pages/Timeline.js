@@ -1,31 +1,51 @@
+import moment from 'moment'
 import React, {useState} from 'react';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 import {SafeAreaView, View, Text, FlatList} from 'react-native';
 
 import {timelinePage} from './styles';
 import {PostItem, PostInput, Header, TopicSelectModal} from '../components';
-import database from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth';
-import moment from 'moment'
+
+
+
 
 const user = auth().currentUser;
 
 const Timeline = () => {
-
-  const [topicModalFlag, setTopicModalFlag] = useState(true);
+  const [postList, setPostList] = useState([])
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [topicModalFlag, setTopicModalFlag] = useState(true);
 
   const selectingTopic = (value)=>{
+    database().ref(`/${selectedTopic}/`).off('value');
+    
     setSelectedTopic(value);
     setTopicModalFlag(false);
 
 
     database()
-    .ref()
+    .ref(`${value}`)
     .on('value', (snapshot)=>{
-      console.log(snapshot.val())
-    })
+      const data = snapshot.val();
+      // const formattedData = Object.keys(data).map(key=>({
+      //   userMail: data[key].userMail,
+      //   postText: data[key].postText,
+      //   time: data[key].time
+      // }))
+     
+  
+      const formattedData = Object.keys(data).map((key) => ({...data[key]}));
 
-  };
+      formattedData.sort((a, b) => {
+        return new Date(b.time) - new Date(a.time);
+      });
+
+    setPostList(formattedData);
+
+  });
+
+};
 
   const sendingPost = (value) =>{
     const postObject = {
@@ -36,6 +56,8 @@ const Timeline = () => {
 
      database().ref(`${selectedTopic}`).push(postObject);
     };
+
+  const renderPosts  = ({item}) => <PostItem post={item} />
   
 
   return (
@@ -44,10 +66,12 @@ const Timeline = () => {
        <Header
        title={selectedTopic}
         onTopicModalSelect={()=> setTopicModalFlag(true)}
+        onLogOut = {()=> auth().signOut()}
        />
        <FlatList
-        data={[]}
-        renderItem={()=>null}
+        keyExtractor = {(_,i)=> i.toString()}
+        data={postList}
+        renderItem={renderPosts}
        />
        <PostInput
         onSendPost={sendingPost}
