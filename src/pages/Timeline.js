@@ -3,12 +3,40 @@ import {SafeAreaView, View, Text, FlatList} from 'react-native';
 
 import {timelinePage} from './styles';
 import {PostItem, PostInput, Header, TopicSelectModal} from '../components';
-import auth from '@react-native-firebase/auth'
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
+import moment from 'moment'
+
+const user = auth().currentUser;
 
 const Timeline = () => {
 
   const [topicModalFlag, setTopicModalFlag] = useState(true);
-  const [selectedTopic, setSelectedTopic] = useState(null)
+  const [selectedTopic, setSelectedTopic] = useState(null);
+
+  const selectingTopic = (value)=>{
+    setSelectedTopic(value);
+    setTopicModalFlag(false);
+
+
+    database()
+    .ref()
+    .on('value', (snapshot)=>{
+      console.log(snapshot.val())
+    })
+
+  };
+
+  const sendingPost = (value) =>{
+    const postObject = {
+     userMail : user.email,
+     postText : value,
+     time : moment().toISOString()
+     }
+
+     database().ref(`${selectedTopic}`).push(postObject);
+    };
+  
 
   return (
     <SafeAreaView style={timelinePage.container}>
@@ -22,7 +50,7 @@ const Timeline = () => {
         renderItem={()=>null}
        />
        <PostInput
-        onSendPost={(value=> console.log(value))}
+        onSendPost={sendingPost}
        />
 
 
@@ -30,10 +58,7 @@ const Timeline = () => {
        <TopicSelectModal
         visibility={topicModalFlag}
         onClose= {()=> selectedTopic ? setTopicModalFlag(false): null}
-        onTopicSelect= {(value)=>{
-          setSelectedTopic(value);
-          setTopicModalFlag(false)
-        }}
+        onTopicSelect= {selectingTopic}
        />
       </View>
     </SafeAreaView>
